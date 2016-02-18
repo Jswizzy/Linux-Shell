@@ -131,13 +131,13 @@ int redir_pos(command_t *p_cmd) {
 }
 
 int execute(command_t *p_cmd) {
-    int pid;
+    int pid, pidc;
     int status;
     char fullpath[MAXSTRLEN];
     int pp;   // pipe position in p_cmd->argv (or -1 if no pipe symbol found)
     int fds[2];   // for pipe
     int outfile;
-    int cpid1, cpid2;
+    int cpid1, cpid2, cpid3;
 
     if ((pp = pipe_pos(p_cmd)) != -1) {   // if we find a pipe symbol...
 
@@ -202,7 +202,7 @@ int execute(command_t *p_cmd) {
     if ((pp = amp_pos(p_cmd)) != -1) {
         p_cmd->argv[pp] = NULL;
 
-        switch (pid = fork()) {
+        switch (pidc = fork()) {
             case 0:        /* a fork returns 0 to the child */
                 find_fullpath(fullpath, p_cmd);
                 execv(fullpath, p_cmd->argv);
@@ -230,7 +230,8 @@ int execute(command_t *p_cmd) {
         exit(1);
     }
 
-    return wait(&status);
+    return waitpid(pid, &status, 0);
+    //return wait(&status);
 }
 
 int find_fullpath(char *fullpath, command_t *p_cmd) {

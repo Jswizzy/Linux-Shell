@@ -67,6 +67,6 @@ int main(int argc, char **argv) {
 void sig_child_handler(int sig) {
 
     int status;
-    wait (&status);
+    waitpid (sig, &status, 0);
 
 }
